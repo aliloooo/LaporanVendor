@@ -3,13 +3,22 @@ import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation } from 're
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Pages
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import UploadReport from './pages/UploadReport';
-import DownloadTemplate from './pages/DownloadTemplate';
-import AdminReports from './pages/admin/AdminReports';
-import AdminTemplates from './pages/admin/AdminTemplates';
+import { Loader2 } from 'lucide-react';
+
+// Lazy-loaded Pages
+const Login = React.lazy(() => import('./pages/Login'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const UploadReport = React.lazy(() => import('./pages/UploadReport'));
+const DownloadTemplate = React.lazy(() => import('./pages/DownloadTemplate'));
+const AdminReports = React.lazy(() => import('./pages/admin/AdminReports'));
+const AdminTemplates = React.lazy(() => import('./pages/admin/AdminTemplates'));
+
+// Full Page Loader
+const PageLoader = () => (
+    <div className="flex h-screen w-full items-center justify-center bg-slate-50">
+        <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+    </div>
+);
 
 import {
     LayoutDashboard, UploadCloud, FileDown, LogOut, LogIn,
@@ -164,35 +173,39 @@ function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
-                <Routes>
-                    {/* Public login page (admin only) */}
-                    <Route path="/login" element={<Login />} />
+                <React.Suspense fallback={<PageLoader />}>
+                    <Routes>
+                        {/* Public login page (admin only) */}
+                        <Route path="/login" element={<Login />} />
 
-                    {/* Main layout — ALL accessible without login */}
-                    <Route path="/*" element={
-                        <Layout>
-                            <Routes>
-                                {/* Public routes — no login required */}
-                                <Route path="/" element={<Dashboard />} />
-                                <Route path="/upload" element={<UploadReport />} />
-                                <Route path="/templates" element={<DownloadTemplate />} />
+                        {/* Main layout — ALL accessible without login */}
+                        <Route path="/*" element={
+                            <Layout>
+                                <React.Suspense fallback={<PageLoader />}>
+                                    <Routes>
+                                        {/* Public routes — no login required */}
+                                        <Route path="/" element={<Dashboard />} />
+                                        <Route path="/upload" element={<UploadReport />} />
+                                        <Route path="/templates" element={<DownloadTemplate />} />
 
-                                {/* Admin-only routes — login required */}
-                                <Route path="/admin/reports" element={
-                                    <ProtectedRoute requiredRole="admin">
-                                        <AdminReports />
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="/admin/templates" element={
-                                    <ProtectedRoute requiredRole="admin">
-                                        <AdminTemplates />
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="/admin" element={<Navigate to="/admin/reports" replace />} />
-                            </Routes>
-                        </Layout>
-                    } />
-                </Routes>
+                                        {/* Admin-only routes — login required */}
+                                        <Route path="/admin/reports" element={
+                                            <ProtectedRoute requiredRole="admin">
+                                                <AdminReports />
+                                            </ProtectedRoute>
+                                        } />
+                                        <Route path="/admin/templates" element={
+                                            <ProtectedRoute requiredRole="admin">
+                                                <AdminTemplates />
+                                            </ProtectedRoute>
+                                        } />
+                                        <Route path="/admin" element={<Navigate to="/admin/reports" replace />} />
+                                    </Routes>
+                                </React.Suspense>
+                            </Layout>
+                        } />
+                    </Routes>
+                </React.Suspense>
             </AuthProvider>
         </BrowserRouter>
     );

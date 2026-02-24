@@ -95,7 +95,17 @@ const ReportForm = ({ vendors, reportTypes, onSubmit, isSubmitting, success }) =
                         type="date"
                         defaultValue={new Date().toISOString().split('T')[0]}
                         min={new Date().toISOString().split('T')[0]}
-                        {...register("report_month", { required: "Tanggal is required" })}
+                        {...register("report_month", {
+                            required: "Tanggal is required",
+                            validate: (value) => {
+                                const selectedDate = new Date(value);
+                                const today = new Date();
+                                // Reset time parts to strictly compare dates
+                                today.setHours(0, 0, 0, 0);
+                                selectedDate.setHours(0, 0, 0, 0);
+                                return selectedDate >= today || "Tanggal laporan tidak boleh hari sebelumnya";
+                            }
+                        })}
                         className="w-full rounded-lg border border-slate-300 px-4 py-2.5 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
                     />
                     {errors.report_month && <p className="mt-1 text-sm text-red-600">{errors.report_month.message}</p>}

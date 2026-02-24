@@ -8,4 +8,16 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['lucide-react'],
+          data: ['@supabase/supabase-js', 'react-hook-form']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  }
 })
