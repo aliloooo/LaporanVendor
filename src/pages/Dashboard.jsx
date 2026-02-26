@@ -120,22 +120,22 @@ const Dashboard = () => {
     const filteredVendors = vendors.filter(v => v.id === selectedVendorId);
 
     return (
-        <div className="space-y-8 pb-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between space-y-4 md:space-y-0">
-                <div className="flex flex-col space-y-2">
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 border-l-4 border-blue-600 pl-4">Dashboard Monitoring</h1>
-                    <p className="text-slate-500 pl-4">Executive summary and detailed compliance matrix for all vendors.</p>
+        <div className="space-y-10 pb-16">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="flex flex-col space-y-2 border-l-4 border-blue-600 pl-6 py-1">
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard Monitoring</h1>
+                    <p className="text-slate-500 font-medium">Ringkasan eksekutif dan matriks kepatuhan laporan vendor.</p>
                 </div>
 
-                <div className="flex flex-col space-y-1">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Periode Monitoring</label>
+                <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-3">Periode</label>
                     <select
                         value={year}
                         onChange={(e) => {
                             setLoading(true);
                             setYear(Number(e.target.value));
                         }}
-                        className="rounded-xl border border-slate-200 px-4 py-2 bg-white text-slate-900 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none font-semibold transition-all hover:border-blue-300"
+                        className="rounded-xl border-none px-4 py-2 bg-slate-50 text-slate-800 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all cursor-pointer hover:bg-slate-100"
                     >
                         {availableYears.map(y => (
                             <option key={y} value={y}>Tahun {y}</option>
@@ -146,38 +146,40 @@ const Dashboard = () => {
 
             {/* Global Summary Cards */}
             {stats.global && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <SummaryCards summary={stats.global} />
                 </div>
             )}
 
             {/* Executive Summary Table - All Vendors */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                <ExecutiveSummaryTable
-                    vendorStats={stats.perVendor}
-                    onSelectVendor={setSelectedVendorId}
-                    selectedVendorId={selectedVendorId}
-                    summaryMonth={summaryMonth}
-                    setSummaryMonth={setSummaryMonth}
-                />
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
+                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                    <ExecutiveSummaryTable
+                        vendorStats={stats.perVendor}
+                        onSelectVendor={setSelectedVendorId}
+                        selectedVendorId={selectedVendorId}
+                        summaryMonth={summaryMonth}
+                        setSummaryMonth={setSummaryMonth}
+                    />
+                </div>
             </div>
 
             {/* Detailed Matrix - Selected Vendor */}
-            <div className="pt-8 border-t border-slate-200 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h2 className="text-xl font-bold text-slate-800">Matriks Detail Laporan</h2>
-                        <p className="text-sm text-slate-500 mt-1">
-                            Melihat rincian bulanan untuk: <span className="font-semibold text-blue-600">{filteredVendors[0]?.name}</span>
+            <div className="pt-12 border-t border-slate-200 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                    <div className="flex flex-col space-y-1">
+                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Matriks Detail Laporan</h2>
+                        <p className="text-sm text-slate-500 font-medium">
+                            Menampilkan rincian bulanan untuk: <span className="font-bold text-blue-600 px-2 py-0.5 bg-blue-50 rounded-md">{filteredVendors[0]?.name}</span>
                         </p>
                     </div>
 
-                    <div className="flex flex-col space-y-1 min-w-[200px]">
-                        <label className="text-xs font-semibold text-slate-500 uppercase px-1">Ganti Vendor Matriks</label>
+                    <div className="flex flex-col space-y-2 min-w-[280px]">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Filter Berdasarkan Vendor</label>
                         <select
                             value={selectedVendorId}
                             onChange={(e) => setSelectedVendorId(e.target.value)}
-                            className="rounded-lg border border-slate-200 px-3 py-2 bg-white text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full rounded-xl border border-slate-200 px-4 py-2.5 bg-white text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm cursor-pointer hover:border-blue-300"
                         >
                             {vendors.map(v => (
                                 <option key={v.id} value={v.id}>{v.name}</option>
