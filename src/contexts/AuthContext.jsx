@@ -21,15 +21,28 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const init = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user ?? null);
-            await fetchRole(session?.user?.id ?? null);
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
+            await fetchRole(currentUser?.id ?? null);
             setLoading(false);
         };
         init();
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            setUser(session?.user ?? null);
-            await fetchRole(session?.user?.id ?? null);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            const newUser = session?.user ?? null;
+
+            // Only update if user ID actually changed to prevent focus-triggered loops
+            setUser(prevUser => {
+                if (prevUser?.id !== newUser?.id) {
+                    // Role only needs fetching if the user actually changed
+                    fetchRole(newUser?.id ?? null);
+                    return newUser;
+                }
+                return prevUser;
+            });
+
+            // Ensure loading is off if it was on
+            setLoading(false);
         });
 
         return () => subscription.unsubscribe();
