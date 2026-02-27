@@ -74,6 +74,8 @@ const Layout = ({ children }) => {
                         <img
                             src={LogoImg}
                             alt="My CEM System"
+                            fetchpriority="high"
+                            loading="eager"
                             className="h-16 md:h-20 w-auto object-contain"
                         />
                         <div className="mt-2 text-center">
@@ -153,7 +155,7 @@ const Layout = ({ children }) => {
                     >
                         <Menu className="w-6 h-6" />
                     </button>
-                    <img src={LogoImg} alt="Logo" className="h-8 w-auto" />
+                    <img src={LogoImg} alt="Logo" fetchpriority="high" loading="eager" className="h-8 w-auto" />
                     <div className="w-10" /> {/* Spacer */}
                 </header>
 

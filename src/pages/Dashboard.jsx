@@ -50,6 +50,17 @@ const Dashboard = () => {
         const currentYear = today.getFullYear();
         const currentMonth = today.getMonth() + 1;
 
+        // Optimization: Pre-index uploads by vendor and report type for O(1) lookup
+        // Map key format: "vendorId_reportTypeId_monthPrefix"
+        const uploadLookup = new Map();
+        uploads.forEach(u => {
+            if (u.report_month) {
+                const monthPrefix = u.report_month.substring(0, 7); // "YYYY-MM"
+                const key = `${u.vendor_id}_${u.report_type_id}_${monthPrefix}`;
+                uploadLookup.set(key, u);
+            }
+        });
+
         const perVendor = vendors.map(vendor => {
             let uploaded = 0;
             let pending = 0;
@@ -57,7 +68,7 @@ const Dashboard = () => {
 
             reportTypes.forEach(rt => {
                 for (let m = 1; m <= 12; m++) {
-                    const reportMonthStr = `${year}-${String(m).padStart(2, '0')}-01`;
+                    const monthPrefix = `${year}-${String(m).padStart(2, '0')}`;
                     const reportMonth = new Date(year, m - 1, 1);
 
                     // Skip if a specific summary month is targeted
@@ -70,11 +81,9 @@ const Dashboard = () => {
                         continue;
                     }
 
-                    const upload = uploads.find(u =>
-                        u.vendor_id === vendor.id &&
-                        u.report_type_id === rt.id &&
-                        u.report_month.startsWith(`${year}-${String(m).padStart(2, '0')}`)
-                    );
+                    // Optimized lookup: O(1) instead of O(U)
+                    const lookupKey = `${vendor.id}_${rt.id}_${monthPrefix}`;
+                    const upload = uploadLookup.get(lookupKey);
 
                     if (upload) {
                         const dueDate = calculateDueDate(reportMonth, rt);
@@ -93,7 +102,7 @@ const Dashboard = () => {
                 uploaded,
                 overdue,
                 pending,
-                totalReports: uploaded + overdue + pending // Total expected reports so far
+                totalReports: uploaded + overdue + pending
             };
         });
 
