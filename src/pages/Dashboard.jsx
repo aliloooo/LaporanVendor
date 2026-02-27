@@ -113,7 +113,7 @@ const Dashboard = () => {
             overdue: perVendor.reduce((acc, v) => acc + v.overdue, 0),
         };
 
-        return { global, perVendor };
+        return { global, perVendor, uploadLookup };
     }, [uploads, vendors, reportTypes, year, loading, summaryMonth]);
 
     if (loading) {
@@ -200,7 +200,7 @@ const Dashboard = () => {
                 <ReportMatrixTable
                     vendors={filteredVendors}
                     reportTypes={reportTypes}
-                    uploads={uploads}
+                    uploadLookup={stats.uploadLookup}
                     year={year}
                 />
             </div>

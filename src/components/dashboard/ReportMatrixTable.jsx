@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CheckCircle2, Clock, AlertCircle, Minus } from 'lucide-react';
 import { calculateDueDate, determineStatus } from '../../utils/dateHelper';
 
@@ -29,30 +29,36 @@ const StatusIcon = ({ status }) => {
 const ReportMatrixTable = React.memo(({ vendors, reportTypes, uploadLookup, year }) => {
     const today = new Date();
 
-    // Helper to find upload for a specific vendor, report type and month
-    const getUploadStatus = (vendorId, reportTypeId, month) => {
-        // Construct month object for this grid cell (1st day of month)
-        const reportMonth = new Date(year, month - 1, 1);
-        const monthPrefix = `${year}-${String(month).padStart(2, '0')}`;
+    // Pre-calculate month-specific data to avoid redundant work in the loop
+    const monthData = useMemo(() => {
+        return MONTHS.map(m => {
+            const reportMonth = new Date(year, m.value - 1, 1);
+            const monthPrefix = `${year}-${String(m.value).padStart(2, '0')}`;
+            const isFuture = reportMonth > today;
 
-        // 1. Optimized lookup: O(1) instead of O(U)
-        const lookupKey = `${vendorId}_${reportTypeId}_${monthPrefix}`;
+            // Map due dates for each report type in this month
+            const dueDates = new Map();
+            reportTypes.forEach(rt => {
+                dueDates.set(rt.id, calculateDueDate(reportMonth, rt));
+            });
+
+            return { value: m.value, reportMonth, monthPrefix, isFuture, dueDates };
+        });
+    }, [year, reportTypes]);
+
+    // Helper to find upload for a specific vendor, report type and month
+    const getUploadStatus = (vendorId, reportTypeId, mData) => {
+        // 1. Optimized lookup: O(1)
+        const lookupKey = `${vendorId}_${reportTypeId}_${mData.monthPrefix}`;
         const upload = uploadLookup?.get(lookupKey);
 
-        const rt = reportTypes.find(t => t.id === reportTypeId);
-        if (!rt) return null;
-
-        const dueDate = calculateDueDate(reportMonth, rt);
-
         if (upload) {
+            const dueDate = mData.dueDates.get(reportTypeId);
             return determineStatus(true, dueDate, upload.uploaded_at);
         }
 
-        // 2. No record found: always 'pending' for past/current months, null for future
-        if (reportMonth > today) {
-            return null; // future month, no icon
-        }
-        return 'pending'; // not yet uploaded
+        // 2. No record found: 'pending' for past/current, null for future
+        return mData.isFuture ? null : 'pending';
     };
 
     return (
@@ -97,10 +103,10 @@ const ReportMatrixTable = React.memo(({ vendors, reportTypes, uploadLookup, year
                                                     <span className="text-[10px] text-slate-400 capitalize">{rt.period_type.replace('_', ' ')}</span>
                                                 </div>
                                             </td>
-                                            {MONTHS.map(m => {
-                                                const status = getUploadStatus(vendor.id, rt.id, m.value);
+                                            {monthData.map(mData => {
+                                                const status = getUploadStatus(vendor.id, rt.id, mData);
                                                 return (
-                                                    <td key={`${vendor.id}-${rt.id}-${m.value}`} className="px-2 py-2.5 text-center border-l border-slate-100">
+                                                    <td key={`${vendor.id}-${rt.id}-${mData.value}`} className="px-2 py-2.5 text-center border-l border-slate-100">
                                                         <StatusIcon status={status} />
                                                     </td>
                                                 );
