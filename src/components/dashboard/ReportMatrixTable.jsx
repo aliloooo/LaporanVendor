@@ -26,21 +26,18 @@ const StatusIcon = ({ status }) => {
     }
 };
 
-const ReportMatrixTable = ({ vendors, reportTypes, uploads, year }) => {
+const ReportMatrixTable = React.memo(({ vendors, reportTypes, uploadLookup, year }) => {
     const today = new Date();
 
     // Helper to find upload for a specific vendor, report type and month
     const getUploadStatus = (vendorId, reportTypeId, month) => {
         // Construct month object for this grid cell (1st day of month)
         const reportMonth = new Date(year, month - 1, 1);
-        const reportMonthStr = `${year}-${String(month).padStart(2, '0')}-01`;
+        const monthPrefix = `${year}-${String(month).padStart(2, '0')}`;
 
-        // 1. Check if there is an actual upload record
-        const upload = uploads.find(u =>
-            u.vendor_id === vendorId &&
-            u.report_type_id === reportTypeId &&
-            u.report_month.startsWith(reportMonthStr.substring(0, 7))
-        );
+        // 1. Optimized lookup: O(1) instead of O(U)
+        const lookupKey = `${vendorId}_${reportTypeId}_${monthPrefix}`;
+        const upload = uploadLookup?.get(lookupKey);
 
         const rt = reportTypes.find(t => t.id === reportTypeId);
         if (!rt) return null;
@@ -48,8 +45,6 @@ const ReportMatrixTable = ({ vendors, reportTypes, uploads, year }) => {
         const dueDate = calculateDueDate(reportMonth, rt);
 
         if (upload) {
-            // LIVE recalculation: compare uploaded_at to dueDate (not today)
-            // This avoids showing stale status from the DB
             return determineStatus(true, dueDate, upload.uploaded_at);
         }
 
@@ -120,6 +115,6 @@ const ReportMatrixTable = ({ vendors, reportTypes, uploads, year }) => {
             </div>
         </div>
     );
-};
+});
 
 export default ReportMatrixTable;

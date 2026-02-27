@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronRight, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 
-const ExecutiveSummaryTable = ({ vendorStats, onSelectVendor, selectedVendorId, summaryMonth, setSummaryMonth }) => {
+const ExecutiveSummaryTable = React.memo(({ vendorStats, onSelectVendor, selectedVendorId, summaryMonth, setSummaryMonth }) => {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50/50 gap-4">
@@ -110,6 +110,6 @@ const ExecutiveSummaryTable = ({ vendorStats, onSelectVendor, selectedVendorId, 
             )}
         </div>
     );
-};
+});
 
 export default ExecutiveSummaryTable;

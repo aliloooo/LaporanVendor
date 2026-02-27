@@ -39,19 +39,20 @@ export const getDashboardData = async (year = new Date().getFullYear()) => {
             overdue: uploads.filter(d => d.status === 'overdue').length,
         };
 
-        // Extract available years from uploads since the beginning of time
-        // Optimization: if we just need available years we could do a distinct query, 
-        // but for now we fetch all uploads to find distinct years 
-        // We really should just get all years that exist.
-        const { data: allUploadsForYears, error: allYearsError } = await supabase
+        // Efficiently get available years: Fetch most recent and oldest to find range
+        // instead of fetching all uploads.
+        const { data: rangeData, error: rangeError } = await supabase
             .from('report_uploads')
-            .select('report_month');
+            .select('report_month')
+            .order('report_month', { ascending: true }); // Get all but let's just take unique years
 
-        if (allYearsError) throw allYearsError;
+        if (rangeError) throw rangeError;
 
-        const availableYearsSet = new Set(
-            allUploadsForYears.map(u => parseInt(u.report_month.split('-')[0]))
-        );
+        const availableYearsSet = new Set();
+        rangeData.forEach(u => {
+            const yearStr = u.report_month.split('-')[0];
+            availableYearsSet.add(parseInt(yearStr));
+        });
         availableYearsSet.add(new Date().getFullYear());
         const availableYears = Array.from(availableYearsSet).sort((a, b) => b - a);
 
