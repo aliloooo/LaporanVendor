@@ -44,7 +44,7 @@ const ExecutiveSummaryTable = React.memo(({ vendorStats, onSelectVendor, selecte
                     <tbody className="divide-y divide-slate-100">
                         {vendorStats.map((stat) => {
                             const compliance = stat.totalReports > 0
-                                ? Math.round((stat.uploaded / stat.totalReports) * 100)
+                                ? Math.round(((stat.uploaded + stat.overdue) / stat.totalReports) * 100)
                                 : 0;
 
                             const isSelected = stat.id === selectedVendorId;

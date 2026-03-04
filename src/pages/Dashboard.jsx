@@ -86,10 +86,10 @@ const Dashboard = () => {
                     const upload = uploadLookup.get(lookupKey);
 
                     if (upload) {
-                        const dueDate = calculateDueDate(reportMonth, rt);
-                        const liveStatus = determineStatus(true, dueDate, upload.uploaded_at);
+                        const liveStatus = upload.status;
                         if (liveStatus === 'uploaded') uploaded++;
                         else if (liveStatus === 'overdue') overdue++;
+                        else if (liveStatus === 'pending') pending++;
                     } else {
                         pending++;
                     }

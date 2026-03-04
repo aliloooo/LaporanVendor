@@ -53,8 +53,7 @@ const ReportMatrixTable = React.memo(({ vendors, reportTypes, uploadLookup, year
         const upload = uploadLookup?.get(lookupKey);
 
         if (upload) {
-            const dueDate = mData.dueDates.get(reportTypeId);
-            return determineStatus(true, dueDate, upload.uploaded_at);
+            return upload.status;
         }
 
         // 2. No record found: 'pending' for past/current, null for future

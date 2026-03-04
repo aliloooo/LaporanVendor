@@ -88,23 +88,13 @@ const ReportForm = ({ vendors, reportTypes, onSubmit, isSubmitting, success }) =
                     {errors.report_type_id && <p className="mt-1 text-sm text-red-600">{errors.report_type_id.message}</p>}
                 </div>
 
-                {/* Date Input */}
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Tanggal Laporan</label>
                     <input
                         type="date"
                         defaultValue={new Date().toISOString().split('T')[0]}
-                        min={new Date().toISOString().split('T')[0]}
                         {...register("report_month", {
-                            required: "Tanggal is required",
-                            validate: (value) => {
-                                const selectedDate = new Date(value);
-                                const today = new Date();
-                                // Reset time parts to strictly compare dates
-                                today.setHours(0, 0, 0, 0);
-                                selectedDate.setHours(0, 0, 0, 0);
-                                return selectedDate >= today || "Tanggal laporan tidak boleh hari sebelumnya";
-                            }
+                            required: "Tanggal is required"
                         })}
                         className="w-full rounded-lg border border-slate-300 px-4 py-2.5 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
                     />

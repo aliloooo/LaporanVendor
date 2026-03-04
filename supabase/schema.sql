@@ -49,6 +49,9 @@ CREATE POLICY "Allow read access on report_uploads" ON public.report_uploads FOR
 DROP POLICY IF EXISTS "Allow insert access on report_uploads" ON public.report_uploads;
 CREATE POLICY "Allow insert access on report_uploads" ON public.report_uploads FOR INSERT TO anon, authenticated WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow admin update on report_uploads" ON public.report_uploads;
+CREATE POLICY "Allow admin update on report_uploads" ON public.report_uploads FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+
 DROP POLICY IF EXISTS "Allow admin delete on report_uploads" ON public.report_uploads;
 CREATE POLICY "Allow admin delete on report_uploads" ON public.report_uploads FOR DELETE TO authenticated USING (true);
 
