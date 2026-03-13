@@ -26,10 +26,6 @@ const Dashboard = () => {
                 setVendors(result.vendors);
                 setReportTypes(result.reportTypes);
 
-                if (result.vendors.length > 0 && !selectedVendorId) {
-                    setSelectedVendorId(result.vendors[0].id);
-                }
-
                 setAvailableYears(result.availableYears || [year]);
                 setSummary(result.summary);
                 setYear(result.year);
