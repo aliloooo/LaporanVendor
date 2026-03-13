@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import { Loader2 } from 'lucide-react';
+import { Toaster } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Lazy-loaded Pages
 const Login = React.lazy(() => import('./pages/Login'));
@@ -111,10 +113,10 @@ const Layout = ({ children }) => {
                     )}
                 </nav>
 
-                {/* Footer: show user info or login button */}
-                <div className="p-6 border-t border-slate-100 bg-slate-50/50">
-                    {user ? (
-                        <div className="flex items-center space-x-3 p-2 bg-white rounded-2xl shadow-sm border border-slate-100">
+                {/* Footer: show user info only if logged in */}
+                <div className="p-6 border-t border-slate-100 bg-slate-50/50 min-h-[100px] flex items-center">
+                    {user && (
+                        <div className="flex items-center space-x-3 p-2 bg-white rounded-2xl shadow-sm border border-slate-100 w-full">
                             <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-md shadow-blue-100 shrink-0">
                                 {user.email.slice(0, 2).toUpperCase()}
                             </div>
@@ -130,14 +132,6 @@ const Layout = ({ children }) => {
                                 <LogOut className="w-5 h-5" />
                             </button>
                         </div>
-                    ) : (
-                        <NavLink
-                            to="/login"
-                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 bg-white border border-slate-100 hover:border-blue-200 hover:text-blue-600 transition-all duration-200 shadow-sm"
-                        >
-                            <LogIn className="w-5 h-5" />
-                            <span className="text-sm font-bold">Admin Login</span>
-                        </NavLink>
                     )}
                 </div>
             </aside>
@@ -185,7 +179,18 @@ const Layout = ({ children }) => {
                     </div>
                 </header>
                 <div className="flex-1 overflow-auto p-6 md:p-10 scroll-smooth">
-                    <div className="max-w-7xl mx-auto">{children}</div>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={location.pathname}
+                            initial={{ opacity: 0, y: 15, filter: 'blur(4px)' }}
+                            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                            exit={{ opacity: 0, y: -15, filter: 'blur(4px)' }}
+                            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} // iPhone-like smooth spring
+                            className="max-w-7xl mx-auto"
+                        >
+                            {children}
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
             </main>
         </div>
@@ -196,10 +201,11 @@ function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
+                <Toaster position="top-right" richColors closeButton />
                 <React.Suspense fallback={<PageLoader />}>
                     <Routes>
-                        {/* Public login page (admin only) */}
-                        <Route path="/login" element={<Login />} />
+                        {/* Public login page (hidden admin entry) */}
+                        <Route path="/admin" element={<Login />} />
 
                         {/* Main layout — ALL accessible without login */}
                         <Route path="/*" element={
@@ -222,7 +228,6 @@ function App() {
                                                 <AdminTemplates />
                                             </ProtectedRoute>
                                         } />
-                                        <Route path="/admin" element={<Navigate to="/admin/reports" replace />} />
                                     </Routes>
                                 </React.Suspense>
                             </Layout>

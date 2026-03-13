@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { LogIn, Loader2, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 import LogoImg from '../assets/logo.png';
 
 const Login = () => {
@@ -9,8 +11,15 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { signIn, role } = useAuth();
+    const { signIn, role, user } = useAuth();
     const navigate = useNavigate();
+
+    // If already logged in as admin, redirect to admin dashboard
+    React.useEffect(() => {
+        if (user && role === 'admin') {
+            navigate('/admin/reports');
+        }
+    }, [user, role, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,11 +30,14 @@ const Login = () => {
             // Auth context will update role after sign in
             // Small delay to allow role state to settle
             setTimeout(() => {
+                toast.success('Login berhasil!');
                 // Role check happens in useEffect of AuthContext, navigate after
                 navigate('/');
             }, 500);
         } catch (err) {
-            setError(err.message || 'Login gagal. Periksa email dan password Anda.');
+            const errorMsg = err.message || 'Login gagal. Periksa email dan password Anda.';
+            setError(errorMsg);
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -41,7 +53,12 @@ const Login = () => {
 
             <div className="w-full max-w-lg z-10">
                 {/* Card */}
-                <div className="bg-white rounded-[32px] border border-slate-100 p-10 md:p-14 shadow-2xl">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="bg-white rounded-[32px] border border-slate-100 p-10 md:p-14 shadow-2xl"
+                >
                     {/* Logo */}
                     <div className="text-center mb-10">
                         <Link to="/" className="inline-block hover:opacity-90 transition-opacity">
@@ -103,7 +120,7 @@ const Login = () => {
                             © 2026 reporting system
                         </p>
                     </div>
-                </div>
+                </motion.div>
 
                 <div className="text-center mt-8">
                     <Link to="/" className="text-sm font-bold text-white/60 hover:text-white transition-colors">

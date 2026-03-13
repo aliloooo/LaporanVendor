@@ -4,7 +4,8 @@ import SummaryCards from '../components/dashboard/SummaryCards';
 import ReportMatrixTable from '../components/dashboard/ReportMatrixTable';
 import ExecutiveSummaryTable from '../components/dashboard/ExecutiveSummaryTable';
 import { calculateDueDate, determineStatus } from '../utils/dateHelper';
-import { Loader2 } from 'lucide-react';
+import { DashboardSkeleton } from '../components/ui/Skeleton';
+import { motion } from 'framer-motion';
 
 const Dashboard = () => {
     const [uploads, setUploads] = useState([]);
@@ -117,12 +118,7 @@ const Dashboard = () => {
     }, [uploads, vendors, reportTypes, year, loading, summaryMonth]);
 
     if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-500">
-                <Loader2 className="w-8 h-8 animate-spin mb-4 text-blue-600" />
-                <p>Loading dashboard data...</p>
-            </div>
-        );
+        return <DashboardSkeleton />;
     }
 
     // Filter logic for selected vendor matrix
@@ -131,10 +127,14 @@ const Dashboard = () => {
     return (
         <div className="space-y-10 pb-16">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                <div className="flex flex-col space-y-2 border-l-4 border-blue-600 pl-6 py-1">
+                <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex flex-col space-y-2 border-l-4 border-blue-600 pl-6 py-1"
+                >
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard Monitoring</h1>
                     <p className="text-slate-500 font-medium">Ringkasan eksekutif dan matriks kepatuhan laporan vendor.</p>
-                </div>
+                </motion.div>
 
                 <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-3">Periode</label>
@@ -165,44 +165,15 @@ const Dashboard = () => {
                 <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
                     <ExecutiveSummaryTable
                         vendorStats={stats.perVendor}
-                        onSelectVendor={setSelectedVendorId}
+                        onSelectVendor={(id) => setSelectedVendorId(selectedVendorId === id ? null : id)}
                         selectedVendorId={selectedVendorId}
                         summaryMonth={summaryMonth}
                         setSummaryMonth={setSummaryMonth}
+                        reportTypes={reportTypes}
+                        uploadLookup={stats.uploadLookup}
+                        year={year}
                     />
                 </div>
-            </div>
-
-            {/* Detailed Matrix - Selected Vendor */}
-            <div className="pt-12 border-t border-slate-200 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-                    <div className="flex flex-col space-y-1">
-                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Matriks Detail Laporan</h2>
-                        <p className="text-sm text-slate-500 font-medium">
-                            Menampilkan rincian bulanan untuk: <span className="font-bold text-blue-600 px-2 py-0.5 bg-blue-50 rounded-md">{filteredVendors[0]?.name}</span>
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col space-y-2 min-w-[280px]">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Filter Berdasarkan Vendor</label>
-                        <select
-                            value={selectedVendorId}
-                            onChange={(e) => setSelectedVendorId(e.target.value)}
-                            className="w-full rounded-xl border border-slate-200 px-4 py-2.5 bg-white text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm cursor-pointer hover:border-blue-300"
-                        >
-                            {vendors.map(v => (
-                                <option key={v.id} value={v.id}>{v.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-                <ReportMatrixTable
-                    vendors={filteredVendors}
-                    reportTypes={reportTypes}
-                    uploadLookup={stats.uploadLookup}
-                    year={year}
-                />
             </div>
         </div>
     );

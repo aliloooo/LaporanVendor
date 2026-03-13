@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import ReportForm from '../components/report/ReportForm';
 import { getFormOptions, uploadReport } from '../services/uploadService';
 import { Loader2, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 const UploadReport = () => {
     const [vendors, setVendors] = useState([]);
@@ -34,8 +36,11 @@ const UploadReport = () => {
         try {
             await uploadReport(formData);
             setSuccess(true);
+            toast.success("Laporan berhasil diunggah!");
         } catch (err) {
-            setError(err.message || "Terjadi kesalahan saat mengunggah laporan.");
+            const errorMsg = err.message || "Terjadi kesalahan saat mengunggah laporan.";
+            setError(errorMsg);
+            toast.error(errorMsg);
         } finally {
             setIsSubmitting(false);
         }
@@ -51,7 +56,11 @@ const UploadReport = () => {
     }
 
     return (
-        <div className="space-y-6 max-w-2xl mx-auto">
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6 max-w-2xl mx-auto"
+        >
             <div className="flex flex-col space-y-2">
                 <h1 className="text-2xl font-bold tracking-tight text-slate-900">Upload Laporan Rutin</h1>
                 <p className="text-slate-500">Silakan lengkapi form di bawah ini dan lampirkan dokumen laporan (PDF/Excel maks 5MB).</p>
@@ -71,7 +80,7 @@ const UploadReport = () => {
                 isSubmitting={isSubmitting}
                 success={success}
             />
-        </div>
+        </motion.div>
     );
 };
 

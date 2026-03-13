@@ -23,8 +23,8 @@ CREATE TABLE public.report_uploads (
     vendor_id UUID REFERENCES public.vendors(id) ON DELETE CASCADE,
     report_type_id UUID REFERENCES public.report_types(id) ON DELETE CASCADE,
     report_month DATE NOT NULL,
-    file_url TEXT NOT NULL,
-    file_name TEXT NOT NULL,
+    file_url TEXT,
+    file_name TEXT,
     status TEXT NOT NULL CHECK (status IN ('uploaded', 'pending', 'overdue')),
     uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

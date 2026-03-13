@@ -6,9 +6,29 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
 
 const ReportForm = ({ vendors, reportTypes, onSubmit, isSubmitting, success }) => {
-    const { register, handleSubmit, formState: { errors }, watch, reset } = useForm();
+    const { register, handleSubmit, formState: { errors }, watch, reset, setValue } = useForm();
     const [fileError, setFileError] = useState("");
+    const [isDragging, setIsDragging] = useState(false);
     const fileList = watch("file");
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const droppedFiles = e.dataTransfer.files;
+        if (droppedFiles?.length > 0) {
+            setValue("file", droppedFiles, { shouldValidate: true });
+        }
+    };
 
     const validateFile = (file) => {
         setFileError("");
@@ -104,7 +124,12 @@ const ReportForm = ({ vendors, reportTypes, onSubmit, isSubmitting, success }) =
                 {/* File Upload */}
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">File Laporan</label>
-                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:border-blue-400 transition-colors bg-slate-50">
+                    <div 
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-xl transition-all duration-200 ${isDragging ? 'border-blue-500 bg-blue-50 scale-[1.01] shadow-inner' : 'border-slate-300 hover:border-blue-400 bg-slate-50'}`}
+                    >
                         <div className="space-y-1 text-center">
                             {fileList && fileList.length > 0 ? (
                                 <div className="flex flex-col items-center space-y-2">
@@ -116,9 +141,9 @@ const ReportForm = ({ vendors, reportTypes, onSubmit, isSubmitting, success }) =
                                 </div>
                             ) : (
                                 <>
-                                    <UploadCloud className="mx-auto h-12 w-12 text-slate-400" />
+                                    <UploadCloud className={`mx-auto h-12 w-12 transition-colors ${isDragging ? 'text-blue-500' : 'text-slate-400'}`} />
                                     <div className="flex text-sm text-slate-600 justify-center">
-                                        <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                             <span>Upload a file</span>
                                             <input id="file-upload" {...register("file", { required: "File is required" })} type="file" className="sr-only" accept=".pdf, .xlsx, .xls" />
                                         </label>
