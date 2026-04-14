@@ -62,6 +62,7 @@ const Dashboard = () => {
             let uploaded = 0;
             let pending = 0;
             let overdue = 0;
+            let inputCount = 0;
 
             reportTypes.forEach(rt => {
                 for (let m = 1; m <= 12; m++) {
@@ -83,6 +84,7 @@ const Dashboard = () => {
                     const upload = uploadLookup.get(lookupKey);
 
                     if (upload) {
+                        inputCount++;
                         const liveStatus = upload.status;
                         if (liveStatus === 'uploaded') uploaded++;
                         else if (liveStatus === 'overdue') overdue++;
@@ -99,12 +101,12 @@ const Dashboard = () => {
                 uploaded,
                 overdue,
                 pending,
-                totalReports: uploaded + overdue + pending
+                totalReports: inputCount
             };
         });
 
         const global = {
-            totalReports: perVendor.reduce((acc, v) => acc + (v.uploaded + v.overdue), 0),
+            totalReports: perVendor.reduce((acc, v) => acc + v.totalReports, 0),
             uploaded: perVendor.reduce((acc, v) => acc + v.uploaded, 0),
             pending: perVendor.reduce((acc, v) => acc + v.pending, 0),
             overdue: perVendor.reduce((acc, v) => acc + v.overdue, 0),

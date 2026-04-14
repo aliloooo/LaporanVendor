@@ -14,6 +14,8 @@ const UploadReport = React.lazy(() => import('./pages/UploadReport'));
 const DownloadTemplate = React.lazy(() => import('./pages/DownloadTemplate'));
 const AdminReports = React.lazy(() => import('./pages/admin/AdminReports'));
 const AdminTemplates = React.lazy(() => import('./pages/admin/AdminTemplates'));
+const AdminVendors = React.lazy(() => import('./pages/admin/AdminVendors'));
+const AdminReportTypes = React.lazy(() => import('./pages/admin/AdminReportTypes'));
 
 // Full Page Loader
 const PageLoader = () => (
@@ -24,7 +26,8 @@ const PageLoader = () => (
 
 import {
     LayoutDashboard, UploadCloud, FileDown, LogOut, LogIn,
-    ShieldCheck, FileText, FileSpreadsheet, Menu, X
+    ShieldCheck, FileText, FileSpreadsheet, Menu, X,
+    Building2, ClipboardList
 } from 'lucide-react';
 import LogoImg from './assets/logo.png';
 
@@ -109,6 +112,8 @@ const Layout = ({ children }) => {
                             </div>
                             <NavItem to="/admin/reports" icon={FileText} label="Kelola Laporan" />
                             <NavItem to="/admin/templates" icon={FileSpreadsheet} label="Kelola Template" />
+                            <NavItem to="/admin/vendors" icon={Building2} label="Kelola Vendor" />
+                            <NavItem to="/admin/report-types" icon={ClipboardList} label="Kelola Jenis Laporan" />
                         </>
                     )}
                 </nav>
@@ -226,6 +231,16 @@ function App() {
                                         <Route path="/admin/templates" element={
                                             <ProtectedRoute requiredRole="admin">
                                                 <AdminTemplates />
+                                            </ProtectedRoute>
+                                        } />
+                                        <Route path="/admin/vendors" element={
+                                            <ProtectedRoute requiredRole="admin">
+                                                <AdminVendors />
+                                            </ProtectedRoute>
+                                        } />
+                                        <Route path="/admin/report-types" element={
+                                            <ProtectedRoute requiredRole="admin">
+                                                <AdminReportTypes />
                                             </ProtectedRoute>
                                         } />
                                     </Routes>

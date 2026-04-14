@@ -40,8 +40,24 @@ ALTER TABLE public.report_uploads ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow anonymous read access on vendors" ON public.vendors;
 CREATE POLICY "Allow anonymous read access on vendors" ON public.vendors FOR SELECT TO anon, authenticated USING (true);
 
+DROP POLICY IF EXISTS "Admin full access on vendors" ON public.vendors;
+CREATE POLICY "Admin full access on vendors" ON public.vendors
+    FOR ALL TO authenticated USING (
+        EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin')
+    ) WITH CHECK (
+        EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin')
+    );
+
 DROP POLICY IF EXISTS "Allow anonymous read access on report_types" ON public.report_types;
 CREATE POLICY "Allow anonymous read access on report_types" ON public.report_types FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "Admin full access on report_types" ON public.report_types;
+CREATE POLICY "Admin full access on report_types" ON public.report_types
+    FOR ALL TO authenticated USING (
+        EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin')
+    ) WITH CHECK (
+        EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin')
+    );
 
 DROP POLICY IF EXISTS "Allow read access on report_uploads" ON public.report_uploads;
 CREATE POLICY "Allow read access on report_uploads" ON public.report_uploads FOR SELECT TO anon, authenticated USING (true);

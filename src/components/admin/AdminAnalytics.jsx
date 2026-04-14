@@ -68,16 +68,16 @@ const AdminAnalytics = ({ currentYear = new Date().getFullYear() }) => {
             }
 
             const uploadedCount = vendorUploads.filter(u => u.status === 'uploaded').length;
+            const overdueCount = vendorUploads.filter(u => u.status === 'overdue').length;
+            const pendingCount = vendorUploads.filter(u => u.status === 'pending').length;
             
-            // Adjust expected total based on drill-down state
-            const expectedMonths = selectedMonthIndex !== null ? 1 : 12;
-            const totalExpected = data.reportTypes.length * expectedMonths;
-            const score = totalExpected > 0 ? (uploadedCount / totalExpected) * 100 : 0;
+            const totalAccounted = uploadedCount + overdueCount + pendingCount;
+            const score = totalAccounted > 0 ? (uploadedCount / totalAccounted) * 100 : 0;
 
             return {
                 name: vendor.name,
                 uploaded: uploadedCount,
-                overdue: vendorUploads.filter(u => u.status === 'overdue').length,
+                overdue: overdueCount,
                 pending: vendorUploads.filter(u => u.status === 'pending').length,
                 score: Math.round(score)
             };

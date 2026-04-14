@@ -22,8 +22,8 @@ const ExecutiveSummaryTable = React.memo(({ vendorStats, onSelectVendor, selecte
                 let bValue = b[sortConfig.key];
                 
                 if (sortConfig.key === 'compliance') {
-                    aValue = a.totalReports > 0 ? ((a.uploaded + a.overdue) / a.totalReports) * 100 : 0;
-                    bValue = b.totalReports > 0 ? ((b.uploaded + b.overdue) / b.totalReports) * 100 : 0;
+                    aValue = a.totalReports > 0 ? (a.uploaded / a.totalReports) * 100 : 0;
+                    bValue = b.totalReports > 0 ? (b.uploaded / b.totalReports) * 100 : 0;
                 } else if (sortConfig.key === 'name') {
                     aValue = a.name.toLowerCase();
                     bValue = b.name.toLowerCase();
@@ -93,7 +93,7 @@ const ExecutiveSummaryTable = React.memo(({ vendorStats, onSelectVendor, selecte
                     <tbody className="divide-y divide-slate-100">
                         {sortedStats.map((stat) => {
                             const compliance = stat.totalReports > 0
-                                ? Math.round(((stat.uploaded + stat.overdue) / stat.totalReports) * 100)
+                                ? Math.round((stat.uploaded / stat.totalReports) * 100)
                                 : 0;
 
                             const isSelected = stat.id === selectedVendorId;
